@@ -135,7 +135,7 @@ class Simulator:
         Ygene  = sp.zeros((T,self.N))
         for t in range(T):
 
-            G = self.genoreader.readBED(start=iSnp[t], nSNPs=1)['snps'][0]
+            G = self.genoreader.loadSnpBlock(start=iSnp[t], nSNPs=1)[0]
             G = (G-G.mean())/G.std()
             
             Ysnp[t]   = sp.sqrt(varSnp)*G
