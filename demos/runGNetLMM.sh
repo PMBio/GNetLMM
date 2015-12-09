@@ -14,16 +14,16 @@ WINDOW=2000
 PLOTFILE=./out/power.pdf
 
 # Generate phenotypes
-./../GNetLMM/bin/gNetLMM_simPheno --bfile $BFILE --pfile $PFILE
+#./../GNetLMM/bin/gNetLMM_simPheno --bfile $BFILE --pfile $PFILE
 
 # Compute covariance matrix
-#./../GNetLMM/bin/gNetLMM_preprocess --compute_covariance --bfile $BFILE --cfile $CFILE 
+#./../GNetLMM/bin/gNetLMM_preprocess --compute_covariance --bfile $BFILE --cfile $CFILE
 
 # Run initial association scan
-#for i in $(seq 0 10000 40000)
-#do
-#    ./../GNetLMM/bin/gNetLMM_preprocess --initial_scan --bfile $BFILE --pfile $PFILE --cfile $CFILE.cov --assoc0file $ASSOC0FILE.startSnp_$i --startSnpIdx $i --nSnps 10000 
-#done
+for i in $(seq 0 10000 40000)
+do
+    ./../GNetLMM/bin/gNetLMM_analyse --initial_scan --bfile $BFILE --pfile $PFILE --cfile $CFILE.cov --assoc0file $ASSOC0FILE.startSnp_$i --startSnpIdx $i --nSnps 10000 
+done
 
 # Merging results
 #./../GNetLMM/bin/gNetLMM_preprocess --merge_assoc0_scan  --assoc0file $ASSOC0FILE 
