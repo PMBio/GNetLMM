@@ -1,0 +1,49 @@
+#! /usr/bin/env python
+# Copyright(c) 2015, The gNetLMM developers (Barbara Rakitsch)
+# All rights reserved.
+
+from optparse import OptionParser
+import pdb
+import numpy as np
+
+from GNetLMM.pycore.utils.analyseCore import analyse
+
+if __name__ == "__main__":
+    parser = OptionParser()
+
+    parser.add_option("--initial_scan", dest="initial_scan", action="store_true", default=False)
+    parser.add_option("--startSnpIdx", dest="startSnpIdx", type=int, default=0)
+    parser.add_option("--nSnps", dest="nSnps", type=int, default=np.inf)
+    parser.add_option("--memory_efficient", dest="memory_efficient", default=False, action="store_true")
+
+    parser.add_option("--merge_assoc0_scan", dest="merge_assoc0_scan", action="store_true", default=False)
+
+    parser.add_option("--gene_corr", dest="gene_corr", action="store_true", default=False)
+
+    parser.add_option("--compute_anchors",action='store_true')
+    parser.add_option("--anchor_thresh", type=np.float, default=None)
+    parser.add_option("--cis", action='store_true', default=False)
+    parser.add_option("--trans", action='store_true', default=False)
+    parser.add_option("--window",dest='window', type=int, default=0)
+ 
+    parser.add_option("--find_vstructures", dest="find_vstructures", default=False, action="store_true")
+    parser.add_option("--update_assoc", dest="update_assoc", default=False, action="store_true")
+    parser.add_option("--startTraitIdx", dest='startTraitIdx', type=int, default=0)
+    parser.add_option("--nTraits", dest='nTraits', type=int, default=np.inf)
+    
+    parser.add_option("--anchorfile", type=str, default=None)
+    parser.add_option("--bfile", dest='bfile', type=str, default=None)
+    parser.add_option("--cfile", dest='cfile', type=str, default=None)
+    parser.add_option("--ffile", dest='ffile', type=str, default=None)
+    parser.add_option("--pfile", dest='pfile', type=str, default=None)
+    parser.add_option("--gfile", dest='gfile', type=str, default=None)
+    parser.add_option("--assoc0file",dest='assoc0file', type=str, default=None)
+    parser.add_option("--assocfile", dest='assocfile', type=str, default=None)
+    parser.add_option("--vfile", dest='vfile', type=str, default=None)
+   
+    parser.add_option("--merge_assoc", dest="merge_assoc", default=False, action="store_true")
+    parser.add_option("--concatenate", dest="concatenate", default=False, action="store_true")
+    parser.add_option("--files", dest='files', type=str, default=None)
+    
+    (options, args) = parser.parse_args()
+    analyse(options)

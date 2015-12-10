@@ -28,4 +28,5 @@ class PhenoReaderFile(reader.FileReader, phenoReader.PhenoReader):
         return len(self.row_info[keys[0]])
 
     def get_ncols(self):
-        return len(self.row_info.keys())
+        keys = self.col_info.keys()
+        return len(self.col_info[keys[0]])

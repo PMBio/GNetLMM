@@ -64,7 +64,7 @@ class FileReader(Reader):
     - row information is saved in basefile.rows
     """
     
-    def __init__(self, basefile, load_rowinfo=True, load_colinfo=False):
+    def __init__(self, basefile, load_rowinfo=True, load_colinfo=True):
         """
         constructor
 
