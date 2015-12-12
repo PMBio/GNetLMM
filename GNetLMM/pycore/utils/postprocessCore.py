@@ -27,8 +27,8 @@ def merge_files(fns_in, fn_out):
 
                     
 def concatenate(infiles, outfile):
-    fns_in = glob.glob(infiles)
-    merge_files(fns_in, outfile)
+    fns_in = glob.glob(infiles + "*.csv")
+    merge_files(fns_in, outfile + '.csv')
 
 
 def merge_results(assocfile, assoc0file):
@@ -112,7 +112,7 @@ def postprocess(options):
         t0 = time.time()
         print 'Concatenating files'
         assert options.infiles is not None, 'Please specify the regular expression for the input filename.'
-        assert options.outfiles is not None, 'Please specify the output filename.'
+        assert options.outfile is not None, 'Please specify the output filename.'
         concatenate(options.infiles, options.outfile)
         t1 = time.time()
         print '.... finished in %s seconds'%(t1-t0)
