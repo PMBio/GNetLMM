@@ -1,14 +1,45 @@
 from optparse import OptionParser
 import pdb
-import GNetLMM.pycore.io.reader as reader
-
-import time
-import GNetLMM.pycore.io.bedReader as bedReader
-import GNetLMM.pycore.io.phenoReader as phenoReader
-import GNetLMM.pycore.modules.utils as utils
-import GNetLMM.pycore.modules.roc as roc
-import GNetLMM.pycore.modules.plotting as plotting
 import numpy as np
+import time
+import glob
+
+import GNetLMM.pycore.io.reader as reader
+import GNetLMM.pycore.io.bedReader as bedReader
+import GNetLMM.pycore.io.phenoReaderFile as phenoReaderFile
+import GNetLMM.pycore.utils.utils as utils
+import GNetLMM.pycore.utils.roc as roc
+import GNetLMM.pycore.utils.plotting as plotting
+import GNetLMM.pycore.modules.assoc_results as assoc_results
+
+
+
+
+def merge_files(fns_in, fn_out):
+    """
+    writing all files fns_ins into fn_out
+    """
+    with open(fn_out, 'w') as fout:
+        for fn_in in fns_in:
+            with open(fn_in) as fin:
+                for line in fin:
+                    fout.write(line)
+
+                    
+def concatenate(infiles, outfile):
+    fns_in = glob.glob(infiles)
+    merge_files(fns_in, outfile)
+
+
+def merge_results(assocfile, assoc0file):
+    """
+    merging association updates with lmm-scan
+    """
+    results = assoc_results.AssocResultsList()
+    results.load_csv(assocfile + '.csv')
+    results.save_matrix(assoc0file, assocfile)
+
+
 
 
 def get_groundtruth(Agene, snp_pos, snp_chrom, gene_pos, gene_chrom, window):
@@ -44,7 +75,7 @@ def plot_power(bfile,pfile,assoc0file, assocfile, plotfile, window):
     Agene = np.loadtxt(pfile + '.Agene')
 
     # gene info
-    preader = phenoReader.PhenoReaderFile(pfile)
+    preader = phenoReaderFile.PhenoReaderFile(pfile)
     gene_start = preader.getGeneStart()
     gene_end = preader.getGeneEnd()
     gene_chrom = preader.getGeneChrom()
@@ -71,17 +102,46 @@ def plot_power(bfile,pfile,assoc0file, assocfile, plotfile, window):
     # plotting results
     plotting.plotROCcurve(['LMM','GNetLMM'],TPR,FPR,xlim=(0,0.05),ylim=(0,0.42),fn=plotfile)
 
+
+
+
 def postprocess(options):
 
-    parser = OptionParser()
-    assert options.assoc0file is not None, 'Please specify the assoc0 file'
-    assert options.assocfile is not None, 'Please specify the assoc0 file'
-    assert options.pfile is not None, 'Please specify the pheno file'
-    assert options.plotfile is not None, 'Please specify the file for saving the figure'
-    assert options.bfile is not None, 'Please specify the geno file'
+    """ concatenate files """
+    if options.concatenate:
+        t0 = time.time()
+        print 'Concatenating files'
+        assert options.infiles is not None, 'Please specify the regular expression for the input filename.'
+        assert options.outfiles is not None, 'Please specify the output filename.'
+        concatenate(options.infiles, options.outfile)
+        t1 = time.time()
+        print '.... finished in %s seconds'%(t1-t0)
 
-    t0 = time.time()
-    print 'Plotting power'
-    plot_power(options.bfile,options.pfile,options.assoc0file, options.assocfile,options.plotfile,options.window)
-    t1 = time.time()
-    print '.... finished in %s seconds'%(t1-t0)
+
+
+
+    """ merging results """
+    if options.merge_assoc:
+        t0 = time.time()
+        print 'Merging associations'
+        assert options.assocfile is not None, 'Please specify an output file'
+        assert options.assoc0file is not None, 'Please specify assoc0 results'
+        merge_results(options.assocfile, options.assoc0file)
+        t1 = time.time()
+        print '.... finished in %s seconds'%(t1-t0)
+        
+  
+
+
+    if options.plot_power:
+        assert options.assoc0file is not None, 'Please specify the assoc0 file'
+        assert options.assocfile is not None, 'Please specify the assoc0 file'
+        assert options.pfile is not None, 'Please specify the pheno file'
+        assert options.plotfile is not None, 'Please specify the file for saving the figure'
+        assert options.bfile is not None, 'Please specify the geno file'
+
+        t0 = time.time()
+        print 'Plotting power'
+        plot_power(options.bfile,options.pfile,options.assoc0file, options.assocfile,options.plotfile,options.window)
+        t1 = time.time()
+        print '.... finished in %s seconds'%(t1-t0)

@@ -67,10 +67,7 @@ def merge_files(fns_in, fn_out):
                 for line in fin:
                     fout.write(line)
                     
-def concatenate(files):
-    fns_in = glob.glob(files + "*.csv")
-    fn_out = files + '.csv'
-    merge_files(fns_in, fn_out)
+
     
 
 def scan(bfile,pfile,cfile,ffile,vfile,assocfile,startTraitIdx,nTraits):
@@ -102,22 +99,30 @@ def scan(bfile,pfile,cfile,ffile,vfile,assocfile,startTraitIdx,nTraits):
 
     
 
-def find_vstructures(bfile, pfile,gfile,anchorfile, assoc0file,window,vfile,startTraitIdx,nTraits):
+def find_vstructures(bfile, pfile,gfile,anchorfile, assoc0file,window,vfile,startTraitIdx,nTraits, corr_thresh, ind_thresh):
     """
     running association scan
 
     input:
+    bfile      :   blink file
     pfile      :   phenotype file
-    cfile      :   covariance file
-    ffile      :   fixed effects file
+  
+    gfile      :   correlation file
     anchorfile :   file containing anchors
     assoc0file :   file containing the results from the initial association scan
+    window     :   window size
     vfile      :   file containing v-structures
+
+    startTraitIdx   :   index of first trait to be analyzed
+    nTraits         :   number of traits to be analyzed
+
+    corr_thresh   : q-value for calling a correlation significant
+    ind_thresh    : q-value for calling a correlation not significant
     """
     preader = phenoReaderFile.PhenoReaderFile(pfile)
     greader =  bedReader.BedReader(bfile)
     
-    model = gnetlmm.GNetLMM(preader, greader, window=window)
+    model = gnetlmm.GNetLMM(preader, greader, window=window, thresh_corr=corr_thresh, thresh_ind=ind_thresh)
 
     genecorr_reader = reader.FileReader(gfile + '.pv')
     model.set_genecorr_reader(genecorr_reader)
@@ -129,14 +134,6 @@ def find_vstructures(bfile, pfile,gfile,anchorfile, assoc0file,window,vfile,star
     model.find_vstructures(startTraitIdx, nTraits)
     model.save_vstructures(vfile+'.csv')
 
-
-def merge_results(assocfile, assoc0file):
-    """
-    merging association updates with lmm-scan
-    """
-    results = assoc_results.AssocResultsList()
-    results.load_csv(assocfile + '.csv')
-    results.save_matrix(assoc0file, assocfile)
 
 
 
@@ -281,7 +278,7 @@ def analyse(options):
         assert options.anchorfile is not None, 'Please specify the cis-anchor file'
         assert options.assoc0file is not None, 'Please specify the assoc0 file'
         assert options.vfile is not None, 'Please specify output file for vstructures'
-        find_vstructures(options.bfile, options.pfile, options.gfile, options.anchorfile,options.assoc0file, options.window, options.vfile,options.startTraitIdx,options.nTraits)
+        find_vstructures(options.bfile, options.pfile, options.gfile, options.anchorfile,options.assoc0file, options.window, options.vfile,options.startTraitIdx,options.nTraits, options.corr_thresh, options.ind_thresh)
         t1 = time.time()
         print '.... finished in %s seconds'%(t1-t0)
         
@@ -297,21 +294,3 @@ def analyse(options):
         t1 = time.time()
         print '.... finished in %s seconds'%(t1-t0)
         
-    """ merging results """
-    if options.merge_assoc:
-        t0 = time.time()
-        print 'Merging associations'
-        assert options.assocfile is not None, 'Please specify an output file'
-        assert options.assoc0file is not None, 'Please specify assoc0 results'
-        merge_results(options.assocfile, options.assoc0file)
-        t1 = time.time()
-        print '.... finished in %s seconds'%(t1-t0)
-        
-    """ concatenate files """
-    if options.concatenate:
-        t0 = time.time()
-        print 'Concatenating files'
-        assert options.files is not None, 'Please specify file start'
-        concatenate(options.files)
-        t1 = time.time()
-        print '.... finished in %s seconds'%(t1-t0)
