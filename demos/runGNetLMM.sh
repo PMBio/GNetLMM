@@ -46,8 +46,8 @@ do
 done
 
 # Merge csv files
-./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $VFILE.startTrait_*      --outfile $VFILE
-./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $ASSOCFILE.startTrait_*  --outfile $ASSOCFILE
+./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $VFILE.startTrait_      --outfile $VFILE
+./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $ASSOCFILE.startTrait_  --outfile $ASSOCFILE
 
 # Write to matrix
 ./../GNetLMM/bin/gNetLMM_postprocess --merge_assoc --assoc0file $ASSOC0FILE --assocfile $ASSOCFILE

@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use('agg')
+
 import numpy as np
 import matplotlib.pylab as plt
 import scipy.cluster.hierarchy as sch
