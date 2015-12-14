@@ -353,7 +353,7 @@ class GNetLMM:
         if icols.any(): vstruct[:,icols] = False
         return vstruct
                 
-    def find_vstructures(self,startTraitIdx=0, nTraits=np.inf):
+    def find_vstructures(self,startTraitIdx=0, nTraits=np.inf, max_genes=np.inf):
         """
         returns an iterator over all (snp,orth_gene) pairs where
         snp -> anchor gene -> gene t <- orth gene
@@ -362,7 +362,7 @@ class GNetLMM:
 
         self.vstructures = vstructures.VstructureList()
         for t in range(startTraitIdx, min(startTraitIdx + nTraits,T)):
-            for isnps, igenes in self.find_vstructures_given_focal_gene(t):
+            for isnps, igenes in self.find_vstructures_given_focal_gene(t, max_genes):
                 if (isnps is not None) and (igenes is not None):
                     self.vstructures.add(t,isnps,igenes)
 
@@ -375,7 +375,7 @@ class GNetLMM:
         self.vstructures = vstructures.VstructureFile(fn)
 
 
-    def find_vstructures_given_focal_gene(self,t):
+    def find_vstructures_given_focal_gene(self,t, max_genes):
    
         # find incoming edges
         vstruct, idx_vstruct = self.find_incoming_edges(t)
@@ -406,10 +406,16 @@ class GNetLMM:
         _,idx,inv = np.unique(w_rnd.dot(vstruct), return_index=True,return_inverse=True)
 
 
+        
+
         for i in np.unique(inv):
             isnps = np.array(idx_snp[inv==i],)
             if vstruct[:,idx[i]].sum()==0: continue
             igenes = np.array(idx_orth[vstruct[:,idx[i]]])
+
+            if len(igenes)>max_genes:
+                idx_sorted = np.argsort(self.genecorr_reader.getRows([t])[0,igenes])
+                igenes = np.sort(igenes[idx_sorted][:max_genes])
             
             yield (isnps,igenes)
             

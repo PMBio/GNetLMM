@@ -33,6 +33,9 @@ if __name__ == "__main__":
 
     parser.add_option("--corr_thresh", default=0.01,type=np.float)
     parser.add_option("--ind_thresh", default=0.1, type=np.float)
+    parser.add_option("--max_genes", default=np.inf, type=int)
+
+
     
     parser.add_option("--anchorfile", type=str, default=None)
     parser.add_option("--bfile", dest='bfile', type=str, default=None)

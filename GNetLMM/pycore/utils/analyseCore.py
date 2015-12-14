@@ -99,7 +99,7 @@ def scan(bfile,pfile,cfile,ffile,vfile,assocfile,startTraitIdx,nTraits):
 
     
 
-def find_vstructures(bfile, pfile,gfile,anchorfile, assoc0file,window,vfile,startTraitIdx,nTraits, corr_thresh, ind_thresh):
+def find_vstructures(bfile, pfile,gfile,anchorfile, assoc0file,window,vfile,startTraitIdx,nTraits, corr_thresh, ind_thresh,max_genes):
     """
     running association scan
 
@@ -118,6 +118,7 @@ def find_vstructures(bfile, pfile,gfile,anchorfile, assoc0file,window,vfile,star
 
     corr_thresh   : q-value for calling a correlation significant
     ind_thresh    : q-value for calling a correlation not significant
+    max_genes     : maximal number of genes in the conditioning set
     """
     preader = phenoReaderFile.PhenoReaderFile(pfile)
     greader =  bedReader.BedReader(bfile)
@@ -131,7 +132,7 @@ def find_vstructures(bfile, pfile,gfile,anchorfile, assoc0file,window,vfile,star
     model.set_assoc0_reader(assoc0Reader)
     
     model.load_anchors(anchorfile)
-    model.find_vstructures(startTraitIdx, nTraits)
+    model.find_vstructures(startTraitIdx, nTraits, max_genes)
     model.save_vstructures(vfile+'.csv')
 
 
@@ -278,7 +279,7 @@ def analyse(options):
         assert options.anchorfile is not None, 'Please specify the cis-anchor file'
         assert options.assoc0file is not None, 'Please specify the assoc0 file'
         assert options.vfile is not None, 'Please specify output file for vstructures'
-        find_vstructures(options.bfile, options.pfile, options.gfile, options.anchorfile,options.assoc0file, options.window, options.vfile,options.startTraitIdx,options.nTraits, options.corr_thresh, options.ind_thresh)
+        find_vstructures(options.bfile, options.pfile, options.gfile, options.anchorfile,options.assoc0file, options.window, options.vfile,options.startTraitIdx,options.nTraits, options.corr_thresh, options.ind_thresh, options.max_genes)
         t1 = time.time()
         print '.... finished in %s seconds'%(t1-t0)
         
