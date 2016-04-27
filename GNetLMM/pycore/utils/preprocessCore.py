@@ -117,7 +117,7 @@ def computeCovarianceMatrix(plink_path,bfile,cfile,sim_type='RRM'):
     """
     try:
         output    = subprocess.check_output('%s --version --noweb'%plink_path,shell=True)
-        use_plink = float(output.split(' ')[1][1:-3])>=1.9
+        use_plink = float(output.split(' ')[1][1:4])>=1.9
     except:
         use_plink = False
 
