@@ -2,7 +2,7 @@ import pdb
 import numpy as np
 import os
 import linecache
-
+import csv
 
 
 class Reader:
@@ -82,6 +82,9 @@ class FileReader(Reader):
 
         self.line_offset = np.load(self.basefile + '.cache.npy')
     
+        f = open(self.basefile + '.matrix','r')
+        self.delimiter = csv.Sniffer().sniff(f.read(1024)).delimiter
+        f.close()
         
     def createCacheFile(self):
         line_offset = []
@@ -112,17 +115,16 @@ class FileReader(Reader):
         input:
         idx   :   row indices
         """
-   
         f = open(self.basefile + '.matrix','r')
         line = f.readline()
-        n_cols = len(line.split(' '))
+        n_cols = len(line.split(self.delimiter))
         RV = np.zeros((len(idx),n_cols))
         
         j=0
         for i in idx:
             f.seek(self.line_offset[i])
             line = f.readline()
-            line = line.split(' ')
+            line = line.split(self.delimiter)
             RV[j] = np.array(line, dtype=np.float)
             j += 1
 
@@ -133,7 +135,7 @@ class FileReader(Reader):
 
         j = 0
         for i,line in enumerate(f):
-            line = np.array(line.split(' '), dtype=float)
+            line = np.array(line.split(self.delimiter), dtype=float)
             yield i, line
         
     def getInfo(self, which):
