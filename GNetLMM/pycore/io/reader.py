@@ -3,7 +3,7 @@ import numpy as np
 import os
 import linecache
 import csv
-
+import sys
 
 class Reader:
     """
@@ -64,7 +64,7 @@ class FileReader(Reader):
     - row information is saved in basefile.rows
     """
     
-    def __init__(self, basefile, load_rowinfo=True, load_colinfo=True):
+    def __init__(self, basefile, load_rowinfo=True, load_colinfo=True, delimiter=None):
         """
         constructor
 
@@ -81,11 +81,16 @@ class FileReader(Reader):
             self.createCacheFile()
 
         self.line_offset = np.load(self.basefile + '.cache.npy')
-    
-        f = open(self.basefile + '.matrix','r')
-        self.delimiter = csv.Sniffer().sniff(f.read(1024)).delimiter
-        f.close()
+
+        if delimiter is None:
+            f = open(self.basefile + '.matrix','r')
+            self.delimiter = csv.Sniffer().sniff(f.readline()).delimiter
+            f.close()
         
+        else:
+            self.delimiter = delimiter 
+
+
     def createCacheFile(self):
         line_offset = []
         offset = 0
