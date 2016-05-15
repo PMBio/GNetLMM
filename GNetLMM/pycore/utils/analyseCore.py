@@ -159,7 +159,7 @@ def find_vstructures(bfile, pfile,gfile,anchorfile, assoc0file,window,vfile,star
 
     genecorr_reader = reader.FileReader(gfile + '.pv')
     model.set_genecorr_reader(genecorr_reader)
-    
+
     assoc0Reader = reader.FileReader(assoc0file + '.pv')
     model.set_assoc0_reader(assoc0Reader)
     

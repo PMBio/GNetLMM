@@ -38,7 +38,7 @@ do
 done 
 
 # Mergin results
-./../GNetLMM/bin/gNetLMM_analyse --merge_corr --gene_corr --gfile $GFILE --nTraits 25
+./../GNetLMM/bin/gNetLMM_analyse --merge_corr --gene_corr --gfile $GFILE --nTraits 25 --pfile $PFILE
 
 
 # Compute anchors 

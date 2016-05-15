@@ -143,7 +143,7 @@ class GNetLMM:
             corr, pv = pcor.corrParallelSym(Y)
         else:
             corr, pv = pcor.corrParallel(Y[startTraitIdx:startTraitIdx+nTraits],Y)
-
+        
         self.genecorr_reader = reader.MatrixReader(pv)
         
         return corr,pv
@@ -278,7 +278,10 @@ class GNetLMM:
         """
         # incoming edges are associated with the gene of interest...        
         pv_genes = self.genecorr_reader.getRows([t])[0]
-        idx_assoc = qvalue.estimate(pv_genes)<self.thresh_corr
+        pv_genes[t] = np.inf # don't count self-correlation in (always 0)
+        qv_genes = np.ones(pv_genes.shape)
+        qv_genes[np.isfinite(pv_genes)] = qvalue.estimate(pv_genes[np.isfinite(pv_genes)])
+        idx_assoc = qv_genes<self.thresh_corr
         idx_assoc[t] = False
         if not(idx_assoc).any(): return None,None
 
