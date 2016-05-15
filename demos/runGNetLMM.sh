@@ -32,7 +32,14 @@ done
 ./../GNetLMM/bin/gNetLMM_analyse --merge_assoc0_scan  --assoc0file $ASSOC0FILE --nSnps 10000 --bfile $BFILE
 
 # Compute marginal gene-gene correlations
-./../GNetLMM/bin/gNetLMM_analyse --gene_corr --pfile $PFILE --gfile $GFILE 
+for i in $(seq 0 25 100)
+do
+./../GNetLMM/bin/gNetLMM_analyse --gene_corr --pfile $PFILE --gfile $GFILE.startTrait_$i  --startTraitIdx $i --nTraits 25
+done 
+
+# Mergin results
+./../GNetLMM/bin/gNetLMM_analyse --merge_corr --gene_corr --gfile $GFILE --nTraits 25
+
 
 # Compute anchors 
 ./../GNetLMM/bin/gNetLMM_analyse --compute_anchors  --bfile $BFILE --pfile $PFILE --assoc0file $ASSOC0FILE --anchorfile $ANCHORFILE --anchor_thresh=$ANCHOR_THRESH  --window=$WINDOW --cis

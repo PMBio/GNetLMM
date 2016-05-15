@@ -133,12 +133,17 @@ class GNetLMM:
         return beta, pv
 
 
-    def marginal_gene_correlations(self):
+    def marginal_gene_correlations(self, startTraitIdx=0, nTraits=np.inf):
         """
         running marginal gene-gene correlations
         """
         Y = self.phenoreader.getMatrix()
-        corr, pv = pcor.corrParallelSym(Y)
+
+        if startTraitIdx==0 and np.isinf(nTraits):
+            corr, pv = pcor.corrParallelSym(Y)
+        else:
+            corr, pv = pcor.corrParallel(Y[startTraitIdx:startTraitIdx+nTraits],Y)
+
         self.genecorr_reader = reader.MatrixReader(pv)
         
         return corr,pv

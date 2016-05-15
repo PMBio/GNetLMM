@@ -56,7 +56,39 @@ def merge_assoc0_scan(assoc0file,nSnps,bfile):
     merge_files(fn_beta, assoc0file + '.beta.matrix')
     merge_files(fn_pv, assoc0file + '.pv.matrix')
 
+
+def merge_genecorr(pfile, gfile, nTraits):
+    """
+    merging gene-gene correlations file 
+
+    input:
+    pfile    : basename of the phenotype file
+    gfile    : basename of the correlation file
+    nTraits  : number of traits in each block
+    """
+    preader = phenoReaderFile.PhenoReaderFile(pfile)
+    T = preader.get_nrows()
+
+    t = 0
+    fn_corr = []
+    fn_pv = []
+    while t < T:
+
+        _fn = gfile + '.startTrait_%d'%t
+        _fn_corr = '%s.corr.matrix'%_fn
+        _fn_pv   = '%s.pv.matrix'%_fn
+        
+        assert os.path.exists(_fn_corr), 'File %s is missing'%(_fn_corr)
+        assert os.path.exists(_fn_pv), 'File %s is missing'%(_fn_pv)
+        fn_corr.append(_fn_corr)
+        fn_pv.append(_fn_pv)
+        t += nTraits
+
     
+    merge_files(fn_corr, gfile + '.corr.matrix')
+    merge_files(fn_pv, gfile + '.pv.matrix')
+
+
 def merge_files(fns_in, fn_out):
     """
     writing all files fns_ins into fn_out
@@ -172,7 +204,7 @@ def initial_scan(bfile, pfile, cfile, ffile, assoc0file, startSnpIdx=0, nSnps=np
 
    
 
-def marginal_genecorr(pfile, gfile):
+def marginal_genecorr(pfile, gfile, startTraitIdx=0, nTraits=np.inf):
     """
     running marginal gene-gene correlations
 
@@ -182,10 +214,13 @@ def marginal_genecorr(pfile, gfile):
     ffile        :   covariates file
 
     gfile        :   basename of output file 
+
+    startTraidIdx : first trait to be analyses 
+    nTraits       : number of traits to be analysed
     """
     preader = phenoReaderFile.PhenoReaderFile(pfile)
     model = gnetlmm.GNetLMM(preader,None)
-    corr, pv = model.marginal_gene_correlations()
+    corr, pv = model.marginal_gene_correlations(startTraitIdx=startTraitIdx, nTraits=nTraits)
     write = writer.Writer(gfile+'.pv')
     write.writeMatrix(pv, fmt='%.4e')
     write = writer.Writer(gfile+'.corr')
@@ -249,9 +284,21 @@ def analyse(options):
         assert options.gfile!=None, "Please specify an output file for saving the gene-gene correlations"
         t0 = time.time()
         print "Computing marginal gene-gene correlations"
-        marginal_genecorr(options.pfile,options.gfile)
+        marginal_genecorr(options.pfile,options.gfile, startTraitIdx=options.startTraitIdx, nTraits=options.nTraits)
         t1=time.time()
         print '... finished in %s seconds'%(t1-t0)
+
+    """ merging correlation files """
+    if options.merge_corr:
+        assert options.gfile is not None, "Please specify an output file for saving the gene-gene correlations."
+        assert options.nTraits is not None, "Please specify the number of traits."
+        assert options.pfile is not None, "Please specify a phenotypic file."
+        t0 = time.time()
+        print "Merging gene-gene correlation"
+        merge_genecorr(options.pfile, options.gfile, nTraits=options.nTraits)
+        t1 = time.time()
+        print '... finished in %s seconds'%(t1-t0)
+
 
     """ determining cis anchors """
     if options.compute_anchors:

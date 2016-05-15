@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_option("--merge_assoc0_scan", dest="merge_assoc0_scan", action="store_true", default=False)
 
     parser.add_option("--gene_corr", dest="gene_corr", action="store_true", default=False)
+    parser.add_option("--merge_corr", dest="merge_corr", action="store_true", default=False)
 
     parser.add_option("--compute_anchors",action='store_true')
     parser.add_option("--anchor_thresh", type=np.float, default=None)
