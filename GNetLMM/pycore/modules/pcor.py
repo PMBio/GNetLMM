@@ -5,9 +5,7 @@ from scipy.stats import t
 import scipy.linalg as LA
 import scipy.stats as STATS
 
-import limix.modules.varianceDecomposition as varianceDecomposition
-import limix.modules.qtl as qtl
-import limix
+
 
 import warnings
 

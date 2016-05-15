@@ -139,7 +139,7 @@ class GNetLMM:
         """
         Y = self.phenoreader.getMatrix()
         corr, pv = pcor.corrParallelSym(Y)
-        self.genecorr_reader = reader.MatrixReader(corr)
+        self.genecorr_reader = reader.MatrixReader(pv)
         
         return corr,pv
 
@@ -271,7 +271,6 @@ class GNetLMM:
         input:
         t   :   index of the gene t
         """
-
         # incoming edges are associated with the gene of interest...        
         pv_genes = self.genecorr_reader.getRows([t])[0]
         idx_assoc = qvalue.estimate(pv_genes)<self.thresh_corr
