@@ -237,8 +237,6 @@ class GNetLMM:
         """
         updating association scan
         """
-
-       
         self.assoc_updates = assoc_results.AssocResultsList()
 
         
@@ -370,6 +368,7 @@ class GNetLMM:
 
         self.vstructures = vstructures.VstructureList()
         for t in range(startTraitIdx, min(startTraitIdx + nTraits,T)):
+            print ".... Finding vstructures for gene %d"%t
             for isnps, igenes in self.find_vstructures_given_focal_gene(t, max_genes):
                 if (isnps is not None) and (igenes is not None):
                     self.vstructures.add(t,isnps,igenes)
