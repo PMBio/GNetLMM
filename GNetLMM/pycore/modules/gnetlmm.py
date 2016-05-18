@@ -239,12 +239,15 @@ class GNetLMM:
         """
         self.assoc_updates = assoc_results.AssocResultsList()
 
+        focal_gene_prev = None
         
         for focal_gene, snp_anchor, orth_gene in self.vstructures.iterator():
             if focal_gene<startTraitIdx or startTraitIdx+nTraits<=focal_gene:
                 continue
 
-            print ".... Updating association (snp, gene) = (%d, %d)"%(np.min(snp_anchor),focal_gene)
+            if focal_gene!=focal_gene_prev:
+                print ".... Updating associations for gene %d"%(focal_gene)
+                focal_gene_prev = focal_gene
       
             y_focal  = self.phenoreader.getRows(focal_gene).T
             y_orth   = self.phenoreader.getRows(orth_gene).T
