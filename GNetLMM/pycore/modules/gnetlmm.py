@@ -243,6 +243,8 @@ class GNetLMM:
         for focal_gene, snp_anchor, orth_gene in self.vstructures.iterator():
             if focal_gene<startTraitIdx or startTraitIdx+nTraits<=focal_gene:
                 continue
+
+            print ".... Updating association (snp, gene) = (%d, %d)"%(np.min(snp_anchor),focal_gene)
       
             y_focal  = self.phenoreader.getRows(focal_gene).T
             y_orth   = self.phenoreader.getRows(orth_gene).T
