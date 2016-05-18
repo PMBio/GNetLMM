@@ -278,7 +278,7 @@ class GNetLMM:
         """
         # incoming edges are associated with the gene of interest...        
         pv_genes = self.genecorr_reader.getRows([t])[0]
-        pv_genes[t] = np.inf # don't count self-correlation in (always 0)
+        pv_genes[t] = np.inf # don't count self-correlation in when estimating q-values (always 0)
         qv_genes = np.ones(pv_genes.shape)
         qv_genes[np.isfinite(pv_genes)] = qvalue.estimate(pv_genes[np.isfinite(pv_genes)])
         idx_assoc = qv_genes<self.thresh_corr
@@ -289,6 +289,7 @@ class GNetLMM:
         _idx_assoc = np.nonzero(idx_assoc)[0]
         pv_genes = self.genecorr_reader.getRows(_idx_assoc)[:,idx_assoc]
         idx_vstruct = np.nonzero(idx_assoc)[0]
+        pv_genes[~np.isfinite(pv_genes)] = 0
         vstruct     = pv_genes > self.thresh_ind
         idx_ind     = vstruct.any(axis=1)
         idx_vstruct = idx_vstruct[idx_ind]
