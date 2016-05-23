@@ -245,7 +245,7 @@ class GNetLMM:
             if focal_gene<startTraitIdx or startTraitIdx+nTraits<=focal_gene:
                 continue
 
-            if focal_gene!=focal_gene_prev:
+            if (focal_gene_prev is None) or (focal_gene!=focal_gene_prev):
                 print ".... Updating associations for gene %d"%(focal_gene)
                 focal_gene_prev = focal_gene
       
@@ -278,7 +278,7 @@ class GNetLMM:
 
         input:
         t   :   index of the gene t
-        """
+f        """
         # incoming edges are associated with the gene of interest...        
         pv_genes = self.genecorr_reader.getRows([t])[0]
         pv_genes[t] = np.inf # don't count self-correlation in when estimating q-values (always 0)

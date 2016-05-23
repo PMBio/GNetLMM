@@ -84,7 +84,6 @@ def merge_genecorr(pfile, gfile, nTraits):
         fn_pv.append(_fn_pv)
         t += nTraits
 
-    
     merge_files(fn_corr, gfile + '.corr.matrix')
     merge_files(fn_pv, gfile + '.pv.matrix')
 
@@ -114,6 +113,9 @@ def scan(bfile,pfile,cfile,ffile,vfile,assocfile,startTraitIdx,nTraits):
     vfile      :   file containing vstructures
     assocfile  :   file for saving results
     """
+    if np.isfinite(nTraits):
+        assocfile += ".startTrait_%d"%startTraitIdx
+    
     K = None
     if cfile is not None:
         K = np.loadtxt(cfile)
@@ -165,6 +167,8 @@ def find_vstructures(bfile, pfile,gfile,anchorfile, assoc0file,window,vfile,star
     
     model.load_anchors(anchorfile)
     model.find_vstructures(startTraitIdx, nTraits, max_genes)
+
+    if np.isfinite(nTraits): vfile += ".startTrait_%d"%startTraitIdx
     model.save_vstructures(vfile+'.csv')
 
 
@@ -190,6 +194,10 @@ def initial_scan(bfile, pfile, cfile, ffile, assoc0file, startSnpIdx=0, nSnps=np
     Covs = None
     if ffile is not None:
         Covs = np.loadtxt(ffile)
+
+    if np.isfinite(nSnps): assoc0file += ".startSnp_%d"%startSnpIdx
+    
+
 
     preader = phenoReaderFile.PhenoReaderFile(pfile)
     greader =  bedReader.BedReader(bfile)
@@ -218,6 +226,10 @@ def marginal_genecorr(pfile, gfile, startTraitIdx=0, nTraits=np.inf):
     startTraidIdx : first trait to be analyses 
     nTraits       : number of traits to be analysed
     """
+
+    if np.isfinite(nTraits): gfile += ".startTrait_%d"%startTraitIdx
+    
+       
     preader = phenoReaderFile.PhenoReaderFile(pfile)
     model = gnetlmm.GNetLMM(preader,None)
     corr, pv = model.marginal_gene_correlations(startTraitIdx=startTraitIdx, nTraits=nTraits)

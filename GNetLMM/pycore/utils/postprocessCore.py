@@ -27,7 +27,7 @@ def merge_files(fns_in, fn_out):
 
                     
 def concatenate(infiles, outfile):
-    fns_in = glob.glob(infiles + "*.csv")
+    fns_in = glob.glob(infiles + ".startTrait_*.csv")
     merge_files(fns_in, outfile + '.csv')
 
 
