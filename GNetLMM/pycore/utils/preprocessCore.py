@@ -115,6 +115,7 @@ def computeCovarianceMatrix(plink_path,bfile,cfile,sim_type='RRM'):
                          the individuals to cfile.cov.id in the current folder.
     sim_type     :   {IBS/RRM} are supported
     """
+ 
     try:
         output    = subprocess.check_output('%s --version --noweb'%plink_path,shell=True)
         use_plink = float(output.split(' ')[1][1:4])>=1.9

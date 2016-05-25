@@ -25,7 +25,7 @@ PLOTFILE=./out/power.pdf
 # Run initial association scan
 for i in $(seq 0 10000 40000)
 do
-    ./../GNetLMM/bin/gNetLMM_analyse --initial_scan --bfile $BFILE --pfile $PFILE --cfile $CFILE.cov --assoc0file $ASSOC0FILE.startSnp_$i --startSnpIdx $i --nSnps 10000 --ffile $FFILE
+    ./../GNetLMM/bin/gNetLMM_analyse --initial_scan --bfile $BFILE --pfile $PFILE --cfile $CFILE.cov --assoc0file $ASSOC0FILE --startSnpIdx $i --nSnps 10000 --ffile $FFILE
 done
 
 # Merging results
@@ -34,27 +34,31 @@ done
 # Compute marginal gene-gene correlations
 for i in $(seq 0 25 100)
 do
-./../GNetLMM/bin/gNetLMM_analyse --gene_corr --pfile $PFILE --gfile $GFILE.startTrait_$i  --startTraitIdx $i --nTraits 25
-done 
-
-# Mergin results
-./../GNetLMM/bin/gNetLMM_analyse --merge_corr --gene_corr --gfile $GFILE --nTraits 25 --pfile $PFILE
+./../GNetLMM/bin/gNetLMM_analyse --gene_corr --pfile $PFILE --gfile $GFILE  --startTraitIdx $i --nTraits 25
+done
+# Merging results
+./../GNetLMM/bin/gNetLMM_analyse --merge_corr  --gfile $GFILE  --pfile $PFILE --nTraits 25
 
 
 # Compute anchors 
 ./../GNetLMM/bin/gNetLMM_analyse --compute_anchors  --bfile $BFILE --pfile $PFILE --assoc0file $ASSOC0FILE --anchorfile $ANCHORFILE --anchor_thresh=$ANCHOR_THRESH  --window=$WINDOW --cis
 
-# Find v-structures and update associations
+# Find v-structures
 for i in $(seq 0 10 90)
 do
-    ./../GNetLMM/bin/gNetLMM_analyse --find_vstructures  --pfile $PFILE  --gfile $GFILE --anchorfile $ANCHORFILE  --assoc0file $ASSOC0FILE --window $WINDOW --vfile $VFILE.startTrait_$i --bfile $BFILE --startTraitIdx $i --nTraits 10
-    
-     ./../GNetLMM/bin/gNetLMM_analyse --update_assoc --bfile $BFILE --pfile $PFILE --cfile $CFILE.cov --ffile $FFILE --vfile $VFILE.startTrait_$i --assocfile $ASSOCFILE.startTrait_$i --startTraitIdx $i --nTraits 10
+    ./../GNetLMM/bin/gNetLMM_analyse --find_vstructures  --pfile $PFILE  --gfile $GFILE --anchorfile $ANCHORFILE  --assoc0file $ASSOC0FILE --window $WINDOW --vfile $VFILE --bfile $BFILE --startTraitIdx $i --nTraits 10
 done
+# Merging csv files
+./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $VFILE      --outfile $VFILE
 
-# Merge csv files
-./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $VFILE.startTrait_      --outfile $VFILE
-./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $ASSOCFILE.startTrait_  --outfile $ASSOCFILE
+
+# Update associationss
+for i in $(seq 0 10 90)
+do
+     ./../GNetLMM/bin/gNetLMM_analyse --update_assoc --bfile $BFILE --pfile $PFILE --cfile $CFILE.cov --ffile $FFILE --vfile $VFILE --assocfile $ASSOCFILE --startTraitIdx $i --nTraits 10
+done
+# Merging csv files
+./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $ASSOCFILE  --outfile $ASSOCFILE
 
 # Write to matrix
 ./../GNetLMM/bin/gNetLMM_postprocess --merge_assoc --assoc0file $ASSOC0FILE --assocfile $ASSOCFILE

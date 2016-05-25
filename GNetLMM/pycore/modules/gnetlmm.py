@@ -237,14 +237,17 @@ class GNetLMM:
         """
         updating association scan
         """
-
-       
         self.assoc_updates = assoc_results.AssocResultsList()
 
+        focal_gene_prev = None
         
         for focal_gene, snp_anchor, orth_gene in self.vstructures.iterator():
             if focal_gene<startTraitIdx or startTraitIdx+nTraits<=focal_gene:
                 continue
+
+            if (focal_gene_prev is None) or (focal_gene!=focal_gene_prev):
+                print ".... Updating associations for gene %d"%(focal_gene)
+                focal_gene_prev = focal_gene
       
             y_focal  = self.phenoreader.getRows(focal_gene).T
             y_orth   = self.phenoreader.getRows(orth_gene).T
@@ -275,10 +278,10 @@ class GNetLMM:
 
         input:
         t   :   index of the gene t
-        """
+f        """
         # incoming edges are associated with the gene of interest...        
         pv_genes = self.genecorr_reader.getRows([t])[0]
-        pv_genes[t] = np.inf # don't count self-correlation in (always 0)
+        pv_genes[t] = np.inf # don't count self-correlation in when estimating q-values (always 0)
         qv_genes = np.ones(pv_genes.shape)
         qv_genes[np.isfinite(pv_genes)] = qvalue.estimate(pv_genes[np.isfinite(pv_genes)])
         idx_assoc = qv_genes<self.thresh_corr
@@ -289,6 +292,7 @@ class GNetLMM:
         _idx_assoc = np.nonzero(idx_assoc)[0]
         pv_genes = self.genecorr_reader.getRows(_idx_assoc)[:,idx_assoc]
         idx_vstruct = np.nonzero(idx_assoc)[0]
+        pv_genes[~np.isfinite(pv_genes)] = 0
         vstruct     = pv_genes > self.thresh_ind
         idx_ind     = vstruct.any(axis=1)
         idx_vstruct = idx_vstruct[idx_ind]
@@ -369,6 +373,7 @@ class GNetLMM:
 
         self.vstructures = vstructures.VstructureList()
         for t in range(startTraitIdx, min(startTraitIdx + nTraits,T)):
+            print ".... Finding vstructures for gene %d"%t
             for isnps, igenes in self.find_vstructures_given_focal_gene(t, max_genes):
                 if (isnps is not None) and (igenes is not None):
                     self.vstructures.add(t,isnps,igenes)
