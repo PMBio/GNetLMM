@@ -32,6 +32,7 @@ class AssocResultsList:
 
     def load_csv(self,fn):
         M = np.loadtxt(fn)
+        if M.ndim==1: M = M[np.newaxis,:]
         self.focal_gene = np.array(M[:,0], dtype=int)
         self.snp_anchor = np.array(M[:,1], dtype=int)
         self.pv = M[:,2]
