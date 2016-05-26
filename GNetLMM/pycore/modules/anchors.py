@@ -27,12 +27,21 @@ class Anchors:
 
     def load(self,fn):
         M = np.loadtxt(fn,delimiter='\t',dtype=str,skiprows=1)
-        if M.ndim==1: M=M[np.newaxis,:]
-        self.gene_ids = M[:,0]
-        self.snp_ids = M[:,1]
-        self.igene = np.array(M[:,2],dtype=int)
-        self.isnp = np.array(M[:,3],dtype=int)
-        self.pv   = np.array(M[:,4],dtype=np.float)
+        
+        if M.shape[0]==0:
+            self.gene_ids = []
+            self.snp_ids = []
+            self.igene = []
+            self.isnp = []
+            self.pv = []
+
+        else:
+            if M.ndim==1: M=M[np.newaxis,:]
+            self.gene_ids = M[:,0]
+            self.snp_ids = M[:,1]
+            self.igene = np.array(M[:,2],dtype=int)
+            self.isnp = np.array(M[:,3],dtype=int)
+            self.pv   = np.array(M[:,4],dtype=np.float)
         
       
     def get_gene_idx(self):
