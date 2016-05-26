@@ -23,20 +23,30 @@ class AssocResultsList:
         
 
     def save_updates(self,fn):
-        pv = np.concatenate(self.pv)[:,np.newaxis]
-        beta = np.concatenate(self.beta)[:,np.newaxis]
-        focal_gene = np.concatenate(self.focal_gene)[:,np.newaxis]
-        snp_anchor = np.concatenate(self.snp_anchor)[:,np.newaxis]
-        np.savetxt(fn+'.csv', np.hstack((focal_gene,snp_anchor,pv,beta)), fmt='%d\t%d\t%.4e\t%.4f')
+        if len(self.pv)>0:
+            pv = np.concatenate(self.pv)[:,np.newaxis]
+            beta = np.concatenate(self.beta)[:,np.newaxis]
+            focal_gene = np.concatenate(self.focal_gene)[:,np.newaxis]
+            snp_anchor = np.concatenate(self.snp_anchor)[:,np.newaxis]
+            np.savetxt(fn+'.csv', np.hstack((focal_gene,snp_anchor,pv,beta)), fmt='%d\t%d\t%.4e\t%.4f')
+        else:
+            f = open(fn + ".csv","w")
+            f.close()
   
 
     def load_csv(self,fn):
         M = np.loadtxt(fn)
-        if M.ndim==1: M = M[np.newaxis,:]
-        self.focal_gene = np.array(M[:,0], dtype=int)
-        self.snp_anchor = np.array(M[:,1], dtype=int)
-        self.pv = M[:,2]
-        self.beta = M[:,3]
+        if M.shape[0]==0:
+            self.focal_gene = np.array([])
+            self.snp_anchor =  np.array([])
+            self.pv =  np.array([])
+            self.beta =  np.array([])
+        else:
+            if M.ndim==1: M = M[np.newaxis,:]
+            self.focal_gene = np.array(M[:,0], dtype=int)
+            self.snp_anchor = np.array(M[:,1], dtype=int)
+            self.pv = M[:,2]
+            self.beta = M[:,3]
     
     def save_matrix(self,fn0,fn_out):
         # re-arrange such that SNPs are ordered
