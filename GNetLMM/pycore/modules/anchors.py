@@ -27,6 +27,7 @@ class Anchors:
 
     def load(self,fn):
         M = np.loadtxt(fn,delimiter='\t',dtype=str,skiprows=1)
+        if M.ndim==1: M=M[np.newaxis,:]
         self.gene_ids = M[:,0]
         self.snp_ids = M[:,1]
         self.igene = np.array(M[:,2],dtype=int)
