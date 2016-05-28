@@ -303,7 +303,20 @@ f        """
         Yv = self.phenoreader.getRows(idx_vstruct)
         Yt = self.phenoreader.getRows([t])[0]
         _,pv_cond = pcor.pcorParallel(Yv,Yt)
-        qv_cond = qvalue.estimate(pv_cond)
+
+        # take nans into account
+        #qv_cond = qvalue.estimate(pv_cond)
+        np.fill_diagonal(pv_cond,np.nan)
+        iu = np.triu_indices(pv_cond.shape[0])
+        il = np.tril_indices(pv_cond.shape[0])
+        pv_cond_flatten = pv_cond[iu].flatten()
+        idx_finite = np.isfinite(pv_cond_flatten)
+        qv_cond_flatten = np.ones(pv_cond_flatten.shape)
+        qv_cond_flatten[idx_finite] = qvalue.estimate(pv_cond_flatten[idx_finite])
+        qv_cond = np.ones(pv_cond.shape)
+        qv_cond[iu] = qv_cond_flatten
+        qv_cond[il] = qv_cond_flatten
+  
         vstruct*= (qv_cond < self.thresh_corr)
         idx_partcorr = vstruct.any(axis=0)
         if not(idx_partcorr).any(): return None,None

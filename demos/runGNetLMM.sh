@@ -36,9 +36,9 @@ for i in $(seq 0 25 100)
 do
 ./../GNetLMM/bin/gNetLMM_analyse --gene_corr --pfile $PFILE --gfile $GFILE  --startTraitIdx $i --nTraits 25
 done
+
 # Merging results
 ./../GNetLMM/bin/gNetLMM_analyse --merge_corr  --gfile $GFILE  --pfile $PFILE --nTraits 25
-
 
 # Compute anchors 
 ./../GNetLMM/bin/gNetLMM_analyse --compute_anchors  --bfile $BFILE --pfile $PFILE --assoc0file $ASSOC0FILE --anchorfile $ANCHORFILE --anchor_thresh=$ANCHOR_THRESH  --window=$WINDOW --cis
@@ -48,6 +48,7 @@ for i in $(seq 0 10 90)
 do
     ./../GNetLMM/bin/gNetLMM_analyse --find_vstructures  --pfile $PFILE  --gfile $GFILE --anchorfile $ANCHORFILE  --assoc0file $ASSOC0FILE --window $WINDOW --vfile $VFILE --bfile $BFILE --startTraitIdx $i --nTraits 10
 done
+
 # Merging csv files
 ./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $VFILE      --outfile $VFILE
 
@@ -57,6 +58,7 @@ for i in $(seq 0 10 90)
 do
      ./../GNetLMM/bin/gNetLMM_analyse --update_assoc --bfile $BFILE --pfile $PFILE --cfile $CFILE.cov --ffile $FFILE --vfile $VFILE --assocfile $ASSOCFILE --startTraitIdx $i --nTraits 10
 done
+
 # Merging csv files
 ./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $ASSOCFILE  --outfile $ASSOCFILE
 
