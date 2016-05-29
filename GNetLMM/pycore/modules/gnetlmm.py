@@ -307,16 +307,25 @@ f        """
         # take nans into account
         #qv_cond = qvalue.estimate(pv_cond)
         np.fill_diagonal(pv_cond,np.nan)
-        iu = np.triu_indices(pv_cond.shape[0])
-        il = np.tril_indices(pv_cond.shape[0])
-        pv_cond_flatten = pv_cond[iu].flatten()
-        idx_finite = np.isfinite(pv_cond_flatten)
-        qv_cond_flatten = np.ones(pv_cond_flatten.shape)
-        qv_cond_flatten[idx_finite] = qvalue.estimate(pv_cond_flatten[idx_finite])
         qv_cond = np.ones(pv_cond.shape)
-        qv_cond[iu] = qv_cond_flatten
-        qv_cond[il] = qv_cond_flatten
-  
+        
+        # upper triangular matrix
+        iu = np.triu_indices(pv_cond.shape[0])
+        pv_cond_iu = pv_cond[iu]
+        idx_finite = np.isfinite(pv_cond_iu)
+        qv_cond_iu = np.ones(pv_cond_iu.shape)
+        qv_cond_iu[idx_finite] = qvalue.estimate(pv_cond_iu[idx_finite])
+        qv_cond[iu] = qv_cond_iu
+
+        # lower triangular matrix
+        il = np.tril_indices(pv_cond.shape[0])
+        pv_cond_il = pv_cond[il]
+        idx_finite = np.isfinite(pv_cond_il)
+        qv_cond_il = np.ones(pv_cond_il.shape)
+        qv_cond_il[idx_finite] = qvalue.estimate(pv_cond_il[idx_finite])
+        qv_cond[il] = qv_cond_il
+        assert np.allclose(qv_cond, qv_cond.T)
+
         vstruct*= (qv_cond < self.thresh_corr)
         idx_partcorr = vstruct.any(axis=0)
         if not(idx_partcorr).any(): return None,None
