@@ -396,9 +396,9 @@ f        """
         self.vstructures = vstructures.VstructureList()
         for t in range(startTraitIdx, min(startTraitIdx + nTraits,T)):
             print ".... Finding vstructures for gene %d"%t
-            for isnps, igenes in self.find_vstructures_given_focal_gene(t, max_genes):
+            for isnps, igenes, ianchors in self.find_vstructures_given_focal_gene(t, max_genes):
                 if (isnps is not None) and (igenes is not None):
-                    self.vstructures.add(t,isnps,igenes)
+                    self.vstructures.add(t,isnps,igenes,ianchors)
 
 
     def save_vstructures(self,fn):
@@ -414,16 +414,17 @@ f        """
         # find incoming edges
         vstruct, idx_vstruct = self.find_incoming_edges(t)
         if vstruct is None:
-            yield None, None
+            yield None, None, None
             return
+        
         t1 = time.time()
      
         # find incoming edges that have at least one anchor
         vstruct,idx_orth,idx_anchor = self.find_anchored_parents(vstruct, idx_vstruct)
         if vstruct is None:
-            yield None, None
+            yield None, None, None
             return
- 
+
         # map anchor genes to anchor snps
         anchor2snp, idx_snp = self.anchors.gene2snp(idx_anchor)
         vstruct = np.dot(vstruct,anchor2snp)
@@ -438,8 +439,6 @@ f        """
         np.random.seed(0)
         w_rnd = np.random.randn(vstruct.shape[0])
         _,idx,inv = np.unique(w_rnd.dot(vstruct), return_index=True,return_inverse=True)
-
-
         
 
         for i in np.unique(inv):
@@ -450,7 +449,15 @@ f        """
             if len(igenes)>max_genes:
                 idx_sorted = np.argsort(self.genecorr_reader.getRows([t])[0,igenes])
                 igenes = np.sort(igenes[idx_sorted][:max_genes])
-            
-            yield (isnps,igenes)
+
+            # map snps back to genes
+            ianchors = np.zeros(isnps.shape, dtype=int)
+            for j,isnp in enumerate(isnps):
+                try:
+                    ianchors[j] = idx_anchor[anchor2snp[:,idx_snp==isnp][:,0]]
+                except:
+                    ianchors[j] = np.inf
+         
+            yield (isnps,igenes,ianchors)
             
  

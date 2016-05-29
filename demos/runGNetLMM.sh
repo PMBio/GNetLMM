@@ -46,7 +46,7 @@ done
 # Find v-structures
 for i in $(seq 0 10 90)
 do
-    ./../GNetLMM/bin/gNetLMM_analyse --find_vstructures  --pfile $PFILE  --gfile $GFILE --anchorfile $ANCHORFILE  --assoc0file $ASSOC0FILE --window $WINDOW --vfile $VFILE --bfile $BFILE --startTraitIdx $i --nTraits 10
+    ./../GNetLMM/bin/gNetLMM_analyse --find_vstructures  --pfile $PFILE  --gfile $GFILE --anchorfile $ANCHORFILE  --assoc0file $ASSOC0FILE  --window $WINDOW --vfile $VFILE --bfile $BFILE --startTraitIdx $i --nTraits 10
 done
 
 # Merging csv files
@@ -68,5 +68,7 @@ done
 # Plot results
 ./../GNetLMM/bin/gNetLMM_postprocess --plot_power --assocfile $ASSOCFILE --assoc0file $ASSOC0FILE --plotfile $PLOTFILE --pfile $PFILE --bfile $BFILE --window $WINDOW
 
+# Creating nice output file for v-structures
+./../GNetLMM/bin/gNetLMM_postprocess --nice_output --bfile $BFILE --pfile $PFILE --vfile $VFILE --outfile $VFILE.nice
 
 

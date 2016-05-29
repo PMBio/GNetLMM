@@ -14,6 +14,7 @@ if __name__ == "__main__":
     parser.add_option("--merge_assoc", dest="merge_assoc", default=False, action="store_true")
     parser.add_option("--concatenate", dest="concatenate", default=False, action="store_true")
     parser.add_option("--plot_power", dest="plot_power", default=False, action="store_true")
+    parser.add_option("--nice_output", dest="nice_output", default=False, action="store_true")
     
     parser.add_option("--infiles", dest='infiles', type=str, default=None)
     parser.add_option("--outfile", dest='outfile', type=str, default=None)
@@ -23,6 +24,7 @@ if __name__ == "__main__":
     parser.add_option("--plotfile", dest='plotfile', type=str, default=None)
     parser.add_option("--pfile", dest='pfile', type=str, default=None)
     parser.add_option("--bfile", dest='bfile', type=str, default=None)
+    parser.add_option("--vfile", dest="vfile", type=str, default=None)
     parser.add_option("--window", dest='window', type=int, default=0)
     (options, args) = parser.parse_args()
 

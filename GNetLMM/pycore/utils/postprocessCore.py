@@ -11,7 +11,7 @@ import GNetLMM.pycore.utils.utils as utils
 import GNetLMM.pycore.utils.roc as roc
 import GNetLMM.pycore.utils.plotting as plotting
 import GNetLMM.pycore.modules.assoc_results as assoc_results
-
+import GNetLMM.pycore.modules.vstructures as vstructures
 
 
 
@@ -104,6 +104,40 @@ def plot_power(bfile,pfile,assoc0file, assocfile, plotfile, window):
 
 
 
+def create_nice_output(vfile, bfile, pfile, outfile):
+    """
+    creating human readbable output file
+    """
+    preader = phenoReaderFile.PhenoReaderFile(pfile)
+    greader =  bedReader.BedReader(bfile)
+
+    snp_ids  = greader.getSnpIds()
+    gene_ids = preader.getGeneIds()
+
+    vstruct = vstructures.VstructureFile(vfile + '.csv')
+
+    f = open(outfile + '.csv','w')
+    header = "Anchor Snp\t Anchor Gene\t Focal Gene\t Orthogonal Genes\n"
+    f.write(header)
+    for idx_focal_gene, idx_anchor_snp, idx_orth_gene, idx_anchor_gene in vstruct.iterator(full=True):
+
+        focal_gene = ",".join(gene_ids[idx_focal_gene])
+        orth_gene = ",".join(gene_ids[idx_orth_gene])
+        anchor_snps = snp_ids[idx_anchor_snp]
+        
+        for i in range(len(anchor_snps)):
+
+            try:
+                anchor_gene = gene_ids[idx_anchor_gene[i]]
+            except:
+                anchor_gene = ""
+
+            line = "%s\t%s\t%s\t%s\n"%(anchor_snps[i],anchor_gene,focal_gene, orth_gene)
+            f.write(line)
+
+
+    f.close()
+
 
 def postprocess(options):
 
@@ -118,8 +152,6 @@ def postprocess(options):
         print '.... finished in %s seconds'%(t1-t0)
 
 
-
-
     """ merging results """
     if options.merge_assoc:
         t0 = time.time()
@@ -130,9 +162,20 @@ def postprocess(options):
         t1 = time.time()
         print '.... finished in %s seconds'%(t1-t0)
         
+
+    """ creating nice output file """
+    if options.nice_output:
+        t0 = time.time()
+        print "Creating nice outputfile"
+        assert options.bfile is not None, 'Please specify bed file'
+        assert options.pfile is not None, 'Please specify phenotype file'
+        assert options.vfile is not None, 'Please specify v-structures file'
+        assert options.outfile is not None, 'Please specify output file'
+        create_nice_output(options.vfile, options.bfile, options.pfile, options.outfile)
+        t1 = time.time()
+        print '.... finished in %s seconds'%(t1-t0)
   
-
-
+    """ plotting power on simulated data """
     if options.plot_power:
         assert options.assoc0file is not None, 'Please specify the assoc0 file'
         assert options.assocfile is not None, 'Please specify the assoc0 file'
