@@ -319,13 +319,9 @@ f        """
 
         # lower triangular matrix
         il = np.tril_indices(pv_cond.shape[0])
-        pv_cond_il = pv_cond[il]
-        idx_finite = np.isfinite(pv_cond_il)
-        qv_cond_il = np.ones(pv_cond_il.shape)
-        qv_cond_il[idx_finite] = qvalue.estimate(pv_cond_il[idx_finite])
-        qv_cond[il] = qv_cond_il
-        assert np.allclose(qv_cond, qv_cond.T)
-
+        qv_cond[il] = 0
+        qv_cond += qv_cond.T
+        
         vstruct*= (qv_cond < self.thresh_corr)
         idx_partcorr = vstruct.any(axis=0)
         if not(idx_partcorr).any(): return None,None
