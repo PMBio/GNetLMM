@@ -21,6 +21,8 @@ if __name__ == "__main__":
     
     parser.add_option("--assoc0file",dest='assoc0file', type=str, default=None)
     parser.add_option("--assocfile", dest='assocfile', type=str, default=None)
+    parser.add_option("--blockfile", dest='blockfile', type=str, default=None)
+    
     parser.add_option("--plotfile", dest='plotfile', type=str, default=None)
     parser.add_option("--pfile", dest='pfile', type=str, default=None)
     parser.add_option("--bfile", dest='bfile', type=str, default=None)

@@ -31,6 +31,7 @@ if __name__ == "__main__":
     parser.add_option("--update_assoc", dest="update_assoc", default=False, action="store_true")
     parser.add_option("--startTraitIdx", dest='startTraitIdx', type=int, default=0)
     parser.add_option("--nTraits", dest='nTraits', type=int, default=np.inf)
+    parser.add_option("--block_assoc", dest="block_assoc",default=False, action="store_true")
 
     parser.add_option("--corr_thresh", default=0.01,type=np.float)
     parser.add_option("--ind_thresh", default=0.1, type=np.float)

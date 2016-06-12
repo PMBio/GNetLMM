@@ -63,13 +63,17 @@ def get_groundtruth(Agene, snp_pos, snp_chrom, gene_pos, gene_chrom, window):
 
     return P_cis, P_trans
     
-def plot_power(bfile,pfile,assoc0file, assocfile, plotfile, window):
+def plot_power(bfile,pfile,assoc0file, assocfile, plotfile, window, blockfile=None):
     # reading out p-values
     score = {}
     assoc0Reader = reader.FileReader(assoc0file + '.pv')
     score['LMM'] = -np.log10(assoc0Reader.getMatrix())
     assocReader = reader.FileReader(assocfile + '.pv')
     score['GNetLMM'] = -np.log10(assocReader.getMatrix())
+
+    if blockfile is not None:
+        assocReader = reader.FileReader(blockfile + '.pv')
+        score["BlockLMM"] = -np.log10(assocReader.getMatrix())
 
     # get network
     Agene = np.loadtxt(pfile + '.Agene')
@@ -100,7 +104,7 @@ def plot_power(bfile,pfile,assoc0file, assocfile, plotfile, window):
         FPR[key], TPR[key] = roc.roc(P_trans, score[key])
 
     # plotting results
-    plotting.plotROCcurve(['LMM','GNetLMM'],TPR,FPR,xlim=(0,0.05),ylim=(0,0.42),fn=plotfile)
+    plotting.plotROCcurve(score.keys(),TPR,FPR,xlim=(0,0.05),ylim=(0,0.42),fn=plotfile)
 
 
 
@@ -185,6 +189,6 @@ def postprocess(options):
 
         t0 = time.time()
         print 'Plotting power'
-        plot_power(options.bfile,options.pfile,options.assoc0file, options.assocfile,options.plotfile,options.window)
+        plot_power(options.bfile,options.pfile,options.assoc0file, options.assocfile,options.plotfile,options.window, options.blockfile)
         t1 = time.time()
         print '.... finished in %s seconds'%(t1-t0)

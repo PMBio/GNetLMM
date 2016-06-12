@@ -260,8 +260,51 @@ class GNetLMM:
             G_anchor = G_anchor[:,snp_anchor-startSnpIdx]
 
             pv, beta = qtl_lr.test_lmm_lr_speed(G_anchor,y_focal, Z=y_orth,Kbg=self.K,Covs=self.Covs, S=self.S, U=self.U)
-            #pv, beta = qtl_lr.test_lmm_lr(G_anchor,y_focal, Z=y_orth,Kbg=self.K,Covs=self.Covs)
+
             self.assoc_updates.add(pv,beta, snp_anchor, focal_gene)
+
+
+
+    def block_associations(self, startTraitIdx=0, nTraits=np.inf):
+        """
+        blocking association scan by conditioning on the anchor gene
+        """
+        self.assoc_updates = assoc_results.AssocResultsList()
+
+        focal_gene_prev = None
+        
+        for focal_gene, snp_anchor, orth_gene,anchor_gene in self.vstructures.iterator(full=True):
+            if focal_gene<startTraitIdx or startTraitIdx+nTraits<=focal_gene:
+                continue
+
+            if (focal_gene_prev is None) or (focal_gene!=focal_gene_prev):
+                print ".... Blocking associations for gene %d"%(focal_gene)
+                focal_gene_prev = focal_gene
+      
+            y_focal  = self.phenoreader.getRows(focal_gene).T
+            y_orth   = self.phenoreader.getRows(orth_gene).T
+            if y_focal.ndim==1: y_focal = y_focal[:,np.newaxis]
+            if y_orth.ndim==1: y_orth = y_orth[:,np.newaxis]
+                
+            startSnpIdx = np.min(snp_anchor)
+            nSnps  = np.max(snp_anchor) - startSnpIdx + 1
+            G_anchor = self.genoreader.loadSnpBlock(startSnpIdx, nSnps).T
+            G_anchor = G_anchor[:,snp_anchor-startSnpIdx]
+
+            for _anchor_gene in np.unique(anchor_gene):
+                
+                Covs = self.phenoreader.getRows([_anchor_gene]).T
+
+                if self.Covs is not None:
+                    Covs = np.hstack((Covs, self.Covs))
+           
+                pv, beta = qtl_lr.test_lmm_lr_speed(G_anchor[:,anchor_gene==_anchor_gene],y_focal, Z=y_orth,Kbg=self.K,Covs=Covs, S=self.S, U=self.U)
+                
+                #pv, beta = qtl_lr.test_lmm_lr(G_anchor,y_focal, Z=y_orth,Kbg=self.K,Covs=self.Covs)
+                self.assoc_updates.add(pv,beta, snp_anchor[anchor_gene==_anchor_gene], focal_gene)
+
+
+
 
 
     def save_updates(self,fn):

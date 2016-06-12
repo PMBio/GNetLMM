@@ -59,16 +59,29 @@ do
      ./../GNetLMM/bin/gNetLMM_analyse --update_assoc --bfile $BFILE --pfile $PFILE --cfile $CFILE.cov --ffile $FFILE --vfile $VFILE --assocfile $ASSOCFILE --startTraitIdx $i --nTraits 10
 done
 
+
 # Merging csv files
 ./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $ASSOCFILE  --outfile $ASSOCFILE
 
 # Write to matrix
 ./../GNetLMM/bin/gNetLMM_postprocess --merge_assoc --assoc0file $ASSOC0FILE --assocfile $ASSOCFILE
 
+
+# Block associationss
+for i in $(seq 0 10 90)
+do
+     ./../GNetLMM/bin/gNetLMM_analyse --block_assoc --bfile $BFILE --pfile $PFILE --cfile $CFILE.cov --ffile $FFILE --vfile $VFILE --assocfile $ASSOCFILE.block --startTraitIdx $i --nTraits 10
+done
+
+# Merging csv files
+./../GNetLMM/bin/gNetLMM_postprocess --concatenate --infiles $ASSOCFILE.block  --outfile $ASSOCFILE.block
+
+# Write to matrix
+./../GNetLMM/bin/gNetLMM_postprocess --merge_assoc --assoc0file $ASSOC0FILE --assocfile $ASSOCFILE.block
+
+
 # Plot results
-./../GNetLMM/bin/gNetLMM_postprocess --plot_power --assocfile $ASSOCFILE --assoc0file $ASSOC0FILE --plotfile $PLOTFILE --pfile $PFILE --bfile $BFILE --window $WINDOW
+./../GNetLMM/bin/gNetLMM_postprocess --plot_power --assocfile $ASSOCFILE --assoc0file $ASSOC0FILE --plotfile $PLOTFILE --pfile $PFILE --bfile $BFILE --window $WINDOW --blockfile $ASSOCFILE.block
 
 # Creating nice output file for v-structures
 ./../GNetLMM/bin/gNetLMM_postprocess --nice_output --bfile $BFILE --pfile $PFILE --vfile $VFILE --outfile $VFILE.nice
-
-

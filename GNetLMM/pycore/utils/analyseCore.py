@@ -101,7 +101,7 @@ def merge_files(fns_in, fn_out):
 
     
 
-def scan(bfile,pfile,cfile,ffile,vfile,assocfile,startTraitIdx,nTraits):
+def scan(bfile,pfile,cfile,ffile,vfile,assocfile,startTraitIdx,nTraits, block=False):
     """
     running association scan
 
@@ -128,7 +128,10 @@ def scan(bfile,pfile,cfile,ffile,vfile,assocfile,startTraitIdx,nTraits):
     greader =  bedReader.BedReader(bfile)
     model = gnetlmm.GNetLMM(preader,greader, Covs=Covs,K=K)
     model.load_vstructures(vfile+".csv")
-    model.update_associations(startTraitIdx, nTraits)
+    if block==True:
+        model.block_associations(startTraitIdx, nTraits)
+    else:
+        model.update_associations(startTraitIdx, nTraits)
     model.save_updates(assocfile)
 
     
@@ -343,14 +346,16 @@ def analyse(options):
         print '.... finished in %s seconds'%(t1-t0)
         
     """ updating associations """
-    if options.update_assoc:
+    if options.update_assoc or options.block_assoc:
         t0 = time.time()
         print 'Updating associations'
         assert options.bfile!=None, 'Please specify a bfile.'
         assert options.pfile is not None, 'Please specify the phenotype file'
         assert options.vfile is not None, 'Please specify vstructure file'
         assert options.assocfile is not None, 'Please specify an output file'
-        scan(options.bfile,options.pfile,options.cfile,options.ffile,options.vfile, options.assocfile,options.startTraitIdx,options.nTraits)
+        scan(options.bfile,options.pfile,options.cfile,options.ffile,options.vfile, options.assocfile,options.startTraitIdx,options.nTraits, block=options.block_assoc)
         t1 = time.time()
         print '.... finished in %s seconds'%(t1-t0)
-        
+
+
+
