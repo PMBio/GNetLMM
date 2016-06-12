@@ -84,4 +84,5 @@ done
 ./../GNetLMM/bin/gNetLMM_postprocess --plot_power --assocfile $ASSOCFILE --assoc0file $ASSOC0FILE --plotfile $PLOTFILE --pfile $PFILE --bfile $BFILE --window $WINDOW --blockfile $ASSOCFILE.block
 
 # Creating nice output file for v-structures
-./../GNetLMM/bin/gNetLMM_postprocess --nice_output --bfile $BFILE --pfile $PFILE --vfile $VFILE --outfile $VFILE.nice
+./../GNetLMM/bin/gNetLMM_postprocess --nice_output --bfile $BFILE --pfile $PFILE --vfile $VFILE --assoc0file $ASSOC0FILE 
+--assocfile $ASSOCFILE --blockfile $ASSOCFILE.block --outfile $VFILE.nice

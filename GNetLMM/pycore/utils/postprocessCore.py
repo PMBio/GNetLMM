@@ -108,7 +108,7 @@ def plot_power(bfile,pfile,assoc0file, assocfile, plotfile, window, blockfile=No
 
 
 
-def create_nice_output(vfile, bfile, pfile, outfile):
+def create_nice_output(vfile, bfile, pfile, assoc0file, assocfile, blockfile, outfile):
     """
     creating human readbable output file
     """
@@ -120,8 +120,18 @@ def create_nice_output(vfile, bfile, pfile, outfile):
 
     vstruct = vstructures.VstructureFile(vfile + '.csv')
 
+    assoc0Reader = reader.FileReader(assoc0file + '.pv')
+    assocReader  = reader.FileReader(assocfile + '.pv')
+
+    blockReader = None
+    if blockfile is not None: blockReader = reader.FileReader(blockfile + '.pv')
+
     f = open(outfile + '.csv','w')
-    header = "Anchor Snp\t Anchor Gene\t Focal Gene\t Orthogonal Genes\n"
+    if blockReader is None:
+        header = "Anchor Snp\t Anchor Gene\t Focal Gene\t Orthogonal Genes\t LMM \t GNetLMM  \n"
+    else:
+        header = "Anchor Snp\t Anchor Gene\t Focal Gene\t Orthogonal Genes\t LMM \t GNetLMM \t BlockLMM \n"
+
     f.write(header)
     for idx_focal_gene, idx_anchor_snp, idx_orth_gene, idx_anchor_gene in vstruct.iterator(full=True):
 
@@ -136,7 +146,17 @@ def create_nice_output(vfile, bfile, pfile, outfile):
             except:
                 anchor_gene = ""
 
-            line = "%s\t%s\t%s\t%s\n"%(anchor_snps[i],anchor_gene,focal_gene, orth_gene)
+        
+            pv_lmm = assoc0Reader.getRows([idx_anchor_snp[i]])[:,idx_focal_gene][0,0]
+            pv_gnet = assocReader.getRows([idx_anchor_snp[i]])[:,idx_focal_gene][0,0]
+
+            if blockReader is None:
+                line = "%s\t%s\t%s\t%s\t%.2e\t%.2e\n"%(anchor_snps[i],anchor_gene,focal_gene, orth_gene, pv_lmm, pv_gnet)
+            else:
+
+                pv_block = blockReader.getRows([idx_anchor_snp[i]])[:,idx_focal_gene][0,0]
+                line = "%s\t%s\t%s\t%s\t%.2e\t%.2e\t%.2e\n"%(anchor_snps[i],anchor_gene,focal_gene, orth_gene, pv_lmm, pv_gnet, pv_block)
+
             f.write(line)
 
 
@@ -175,7 +195,11 @@ def postprocess(options):
         assert options.pfile is not None, 'Please specify phenotype file'
         assert options.vfile is not None, 'Please specify v-structures file'
         assert options.outfile is not None, 'Please specify output file'
-        create_nice_output(options.vfile, options.bfile, options.pfile, options.outfile)
+
+        assert options.assocfile is not None, 'Please specify assoc file'
+        assert options.assoc0file is not None, 'Please specify assoc0 file'
+        create_nice_output(options.vfile, options.bfile, options.pfile, options.assocfile, options.assoc0file,
+            options.blockfile, options.outfile)
         t1 = time.time()
         print '.... finished in %s seconds'%(t1-t0)
   
