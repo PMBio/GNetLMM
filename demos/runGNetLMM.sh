@@ -14,6 +14,7 @@ WINDOW=2000
 VFILE=./out/vstructures_thresh1e-6_wnd2000
 ASSOCFILE=./out/gnetlmm_thresh1e-6_wnd2000
 
+
 PLOTFILE=./out/power.pdf
 
 # Generate phenotypes
@@ -84,5 +85,4 @@ done
 ./../GNetLMM/bin/gNetLMM_postprocess --plot_power --assocfile $ASSOCFILE --assoc0file $ASSOC0FILE --plotfile $PLOTFILE --pfile $PFILE --bfile $BFILE --window $WINDOW --blockfile $ASSOCFILE.block
 
 # Creating nice output file for v-structures
-./../GNetLMM/bin/gNetLMM_postprocess --nice_output --bfile $BFILE --pfile $PFILE --vfile $VFILE --assoc0file $ASSOC0FILE 
---assocfile $ASSOCFILE --blockfile $ASSOCFILE.block --outfile $VFILE.nice
+./../GNetLMM/bin/gNetLMM_postprocess --nice_output --bfile $BFILE --pfile $PFILE --vfile $VFILE --assoc0file $ASSOC0FILE --assocfile $ASSOCFILE --blockfile $ASSOCFILE.block --outfile $ASSOCFILE.nice
