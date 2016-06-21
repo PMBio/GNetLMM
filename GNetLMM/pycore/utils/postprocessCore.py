@@ -119,19 +119,31 @@ def create_nice_output(vfile, bfile, pfile, assoc0file, assocfile, blockfile, ou
     gene_ids = preader.getGeneIds()
 
     vstruct = vstructures.VstructureFile(vfile + '.csv')
-
     assoc0Reader = reader.FileReader(assoc0file + '.pv')
-    assocReader  = reader.FileReader(assocfile + '.pv')
+    assocReader  = assoc_results.AssocResultsList()
+    assocReader.load_csv(assocfile + '.csv')
 
     blockReader = None
-    if blockfile is not None: blockReader = reader.FileReader(blockfile + '.pv')
+    if blockfile is not None: 
+        blockReader = assoc_results.AssocResultsList()
+        blockReader.load_csv(blockfile + '.csv')
 
     f = open(outfile + '.csv','w')
     if blockReader is None:
-        header = "Anchor Snp\t Anchor Gene\t Focal Gene\t Orthogonal Genes\t LMM \t GNetLMM  \n"
+        header = "Anchor Snp\t Anchor Gene\t Focal Gene\t Orthogonal Genes\t pv(LMM) \t pv(GNetLMM)"
     else:
-        header = "Anchor Snp\t Anchor Gene\t Focal Gene\t Orthogonal Genes\t LMM \t GNetLMM \t BlockLMM \n"
+        header = "Anchor Snp\t Anchor Gene\t Focal Gene\t Orthogonal Genes\t pv(LMM) \t pv(GNetLMM) \t pv(BlockLMM)"
 
+    if assocReader.var_snps is not None: header += '\t varSnp(GnetLMM)'
+    if assocReader.var_covs is not None: header += '\t varCovs(GnetLMM)'
+    if assocReader.var_genes is not None: header += '\t varGenes(GnetLMM)'
+
+    if blockReader is not None:
+        if blockReader.var_snps is not None: header += '\t varSnp(BlockLMM)'
+        if blockReader.var_covs is not None: header += '\t varCovs(BlockLMM)'
+        if blockReader.var_genes is not None: header += '\t varGenes(BlockLMM)'
+
+    header += "\n"
     f.write(header)
     for idx_focal_gene, idx_anchor_snp, idx_orth_gene, idx_anchor_gene in vstruct.iterator(full=True):
 
@@ -148,15 +160,26 @@ def create_nice_output(vfile, bfile, pfile, assoc0file, assocfile, blockfile, ou
 
         
             pv_lmm = assoc0Reader.getRows([idx_anchor_snp[i]])[:,idx_focal_gene][0,0]
-            pv_gnet = assocReader.getRows([idx_anchor_snp[i]])[:,idx_focal_gene][0,0]
+
+            idx_gnet = np.logical_and(assocReader.focal_gene==idx_focal_gene, assocReader.snp_anchor==idx_anchor_snp[i])
+            if blockReader is not None:
+                idx_block = np.logical_and(blockReader.focal_gene==idx_focal_gene, blockReader.snp_anchor==idx_anchor_snp[i])
 
             if blockReader is None:
-                line = "%s\t%s\t%s\t%s\t%.2e\t%.2e\n"%(anchor_snps[i],anchor_gene,focal_gene, orth_gene, pv_lmm, pv_gnet)
+                line = "%s\t%s\t%s\t%s\t%.4e\t%.4e"%(anchor_snps[i],anchor_gene,focal_gene, orth_gene, pv_lmm, assocReader.pv[idx_gnet])
             else:
+                line = "%s\t%s\t%s\t%s\t%.4e\t%.4e\t%.4e"%(anchor_snps[i],anchor_gene,focal_gene, orth_gene, pv_lmm, assocReader.pv[idx_gnet], blockReader.pv[idx_block])
 
-                pv_block = blockReader.getRows([idx_anchor_snp[i]])[:,idx_focal_gene][0,0]
-                line = "%s\t%s\t%s\t%s\t%.2e\t%.2e\t%.2e\n"%(anchor_snps[i],anchor_gene,focal_gene, orth_gene, pv_lmm, pv_gnet, pv_block)
+            if assocReader.var_snps is not None: line += '\t%.4e'%assocReader.var_snps[idx_gnet]
+            if assocReader.var_covs is not None: line += '\t%.4e'%assocReader.var_covs[idx_gnet]
+            if assocReader.var_genes is not None: line += '\t%.4e'%assocReader.var_genes[idx_gnet]
 
+            if blockReader is not None:
+                if blockReader.var_snps is not None: line += '\t%.4e'%blockReader.var_snps[idx_block]
+                if blockReader.var_covs is not None: line += '\t%.4e'%blockReader.var_covs[idx_block]
+                if blockReader.var_genes is not None: line += '\t%.4e'%blockReader.var_genes[idx_block]
+
+            line += "\n"
             f.write(line)
 
 
@@ -198,7 +221,7 @@ def postprocess(options):
 
         assert options.assocfile is not None, 'Please specify assoc file'
         assert options.assoc0file is not None, 'Please specify assoc0 file'
-        create_nice_output(options.vfile, options.bfile, options.pfile, options.assocfile, options.assoc0file,
+        create_nice_output(options.vfile, options.bfile, options.pfile, options.assoc0file, options.assocfile,
             options.blockfile, options.outfile)
         t1 = time.time()
         print '.... finished in %s seconds'%(t1-t0)

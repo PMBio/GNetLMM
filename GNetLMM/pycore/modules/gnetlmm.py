@@ -259,9 +259,9 @@ class GNetLMM:
             G_anchor = self.genoreader.loadSnpBlock(startSnpIdx, nSnps).T
             G_anchor = G_anchor[:,snp_anchor-startSnpIdx]
 
-            pv, beta = qtl_lr.test_lmm_lr_speed(G_anchor,y_focal, Z=y_orth,Kbg=self.K,Covs=self.Covs, S=self.S, U=self.U)
+            pv, beta, var_snps, var_covs, var_genes = qtl_lr.test_lmm_lr_speed(G_anchor,y_focal, Z=y_orth,Kbg=self.K,Covs=self.Covs, S=self.S, U=self.U)
 
-            self.assoc_updates.add(pv,beta, snp_anchor, focal_gene)
+            self.assoc_updates.add(pv,beta, var_snps, var_covs, var_genes, snp_anchor, focal_gene)
 
 
 
@@ -293,15 +293,16 @@ class GNetLMM:
 
             for _anchor_gene in np.unique(anchor_gene):
                 
+
                 Covs = self.phenoreader.getRows([_anchor_gene]).T
 
                 if self.Covs is not None:
                     Covs = np.hstack((Covs, self.Covs))
            
-                pv, beta = qtl_lr.test_lmm_lr_speed(G_anchor[:,anchor_gene==_anchor_gene],y_focal, Z=y_orth,Kbg=self.K,Covs=Covs, S=self.S, U=self.U)
+                pv, beta, var_snps, var_covs, var_genes = qtl_lr.test_lmm_lr_speed(G_anchor[:,anchor_gene==_anchor_gene],y_focal, Z=y_orth,Kbg=self.K,Covs=Covs, S=self.S, U=self.U)
                 
                 #pv, beta = qtl_lr.test_lmm_lr(G_anchor,y_focal, Z=y_orth,Kbg=self.K,Covs=self.Covs)
-                self.assoc_updates.add(pv,beta, snp_anchor[anchor_gene==_anchor_gene], focal_gene)
+                self.assoc_updates.add(pv,beta, var_snps, var_covs, var_genes, snp_anchor[anchor_gene==_anchor_gene], focal_gene)
 
 
 

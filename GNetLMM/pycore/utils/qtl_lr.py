@@ -39,8 +39,14 @@ def test_lmm_lr(G, y, Z, Kbg, Covs=None):
     lm = qtl.test_lmm(G,y,covs=Covs,K=Ktotal)
     pv = lm.getPv()[0]
     beta = lm.getBetaSNP()[0]
+    
+    var_snps =  beta**2 * np.var(G,axis=0)
+    var_genes = np.zeros(len(beta)) + varComps[1]
+    var_covs  = np.zeros(len(beta))
+    if Covs is not None: var_covs += np.dot(Covs, vd.getWeights()).var()
+   
 
-    return pv, beta
+    return pv, beta, var_snps, var_covs, var_genes
  
 def test_lmm_lr_speed(G,y,Z,Kbg,Covs=None,S=None,U=None):
     """
@@ -68,7 +74,8 @@ def test_lmm_lr_speed(G,y,Z,Kbg,Covs=None,S=None,U=None):
     Cg = freeform(1)
     Cn = freeform(1)
 
-    Z/=np.sqrt(Z.shape[1])
+    Z/=np.sqrt(np.mean(np.sum(Z**2, axis=1)))
+    #Z/=np.sqrt(Z.shape[1])
     gp = gp3kronSum(m,Cg,Cn,XX=Kbg,Xr=Z,S_XX=S,U_XX=U)
 
     
@@ -95,7 +102,11 @@ def test_lmm_lr_speed(G,y,Z,Kbg,Covs=None,S=None,U=None):
     F = G.shape[1]
     LML = np.zeros(F)
     beta = np.zeros(F)
-    
+
+    var_snps = np.zeros(F)
+    var_covs = np.zeros(F)
+    var_genes = np.zeros(F)    
+
     for f in xrange(F):
         m.clearFixedEffect()
         if Covs is not None: m.addFixedEffect(Covs)
@@ -104,7 +115,12 @@ def test_lmm_lr_speed(G,y,Z,Kbg,Covs=None,S=None,U=None):
         beta[f] = m.getParams()[-1]
         LML[f] = gp.LML()
 
+        var_genes[f]  = gp.getParams()['Cr']**2
+        var_snps[f]   = beta[f]**2 * np.var(G[:,[f]])
+        if Covs is not None: 
+            var_covs[f] = np.var(np.dot(Covs, m.getParams()[:-1]))
+    
+
     LRT = 2*(LML0-LML)
     pv = stats.chi2.sf(LRT,1)
-
-    return pv, beta
+    return pv, beta, var_snps, var_covs, var_genes

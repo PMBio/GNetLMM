@@ -10,8 +10,11 @@ class AssocResultsList:
         self.focal_gene = []
         self.snp_anchor  = []
 
+        self.var_snps = []
+        self.var_covs = []
+        self.var_genes = []
 
-    def add(self, pv, beta, snp_anchor, focal_gene):
+    def add(self, pv, beta, var_snps, var_covs, var_genes,snp_anchor, focal_gene):
 
         n = len(pv)
         focal_gene = np.repeat(focal_gene, n)
@@ -20,6 +23,9 @@ class AssocResultsList:
         self.beta.append(beta)
         self.snp_anchor.append(snp_anchor)
         self.focal_gene.append(focal_gene)
+        self.var_snps.append(var_snps)
+        self.var_covs.append(var_covs)
+        self.var_genes.append(var_genes)
         
 
     def save_updates(self,fn):
@@ -28,7 +34,11 @@ class AssocResultsList:
             beta = np.concatenate(self.beta)[:,np.newaxis]
             focal_gene = np.concatenate(self.focal_gene)[:,np.newaxis]
             snp_anchor = np.concatenate(self.snp_anchor)[:,np.newaxis]
-            np.savetxt(fn+'.csv', np.hstack((focal_gene,snp_anchor,pv,beta)), fmt='%d\t%d\t%.4e\t%.4f')
+            var_snps = np.concatenate(self.var_snps)[:,np.newaxis]
+            var_covs = np.concatenate(self.var_covs)[:,np.newaxis]
+            var_genes = np.concatenate(self.var_genes)[:,np.newaxis]
+            matrix = np.hstack((focal_gene,snp_anchor,pv,beta, var_snps, var_covs, var_genes))
+            np.savetxt(fn+'.csv', matrix, fmt='%d\t%d\t%.4e\t%.4f\t%.4e\t%.4e\t%.4e')
         else:
             f = open(fn + ".csv","w")
             f.close()
@@ -36,6 +46,10 @@ class AssocResultsList:
 
     def load_csv(self,fn):
         M = np.loadtxt(fn)
+        self.var_snps = None 
+        self.var_covs = None 
+        self.var_genes = None
+
         if M.shape[0]==0:
             self.focal_gene = np.array([])
             self.snp_anchor =  np.array([])
@@ -47,6 +61,13 @@ class AssocResultsList:
             self.snp_anchor = np.array(M[:,1], dtype=int)
             self.pv = M[:,2]
             self.beta = M[:,3]
+
+            if M.shape>4:
+                self.var_snps = M[:,4]
+                self.var_covs = M[:,5]
+                self.var_genes = M[:,6]
+
+
     
     def save_matrix(self,fn0,fn_out):
         # re-arrange such that SNPs are ordered
@@ -88,11 +109,7 @@ class AssocResultsList:
                 line = ' '.join(arr)
                 if not(line.endswith('\n')): line += '\n'
                     
-            
-                
-            fout.write(line)
-         
-                
+            fout.write(line)                
             line = fin.readline()
             i += 1
 
