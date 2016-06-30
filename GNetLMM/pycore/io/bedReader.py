@@ -23,27 +23,40 @@ class BedReader(genoReader.GenoReader):
         self.bim = self._readBIM()
         self.fam = self._readFAM()
 
+        self.pos = self.bim[:,3]
+        try:
+            self.pos = np.array(self.pos, dtype=int)
+        except:
+            pass
+
+        self.chrom = self.bim[:,0]
+        try:
+            self.chrom = np.array(self.chrom, dtype=int)
+        except:
+            pass
+
+        self.ids = self.bim[:,1]
+   
+
+    def getSnpIds(self):
+        """
+        returns the snp identifiers
+        """
+        return self.ids
+    
 
     def getSnpPos(self):
         """
         returns the snp position (in basepairs)
         """
-        try:
-            return np.array(self.bim[:,3], dtype=int)
-        except:
-            pass
-        return self.bim[:,3]
+        return self.pos
     
 
     def getSnpChrom(self):
         """
         returns the chromosomal information
         """
-        try:
-            return np.array(self.bim[:,0], dtype=int)
-        except:
-            pass
-        return self.bim[:,0]
+        return self.chrom
     
 
     def get_ncols(self):
@@ -59,12 +72,6 @@ class BedReader(genoReader.GenoReader):
         return self.bim.shape[0]
 
 
-    def getSnpIds(self):
-        """
-        returns the snp identifiers
-        """
-        return self.bim[:,1]
-    
 
     def loadSnpBlock(self,start=0, nSNPs=np.inf):
         """
