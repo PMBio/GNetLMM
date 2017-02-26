@@ -167,7 +167,7 @@ class BedReader(genoReader.GenoReader):
               }
           return ret
        
-      SNPs = np.zeros(((np.ceil(0.25*N)*4),nSNPs),order=order)
+      SNPs = np.zeros(((int(np.ceil(0.25*N)*4)),nSNPs),order=order)
       bed = self.basefilename + '.bed'
       with open(bed, "rb") as f:
           mode = f.read(2)
@@ -176,14 +176,14 @@ class BedReader(genoReader.GenoReader):
           mode = f.read(1) #\x01 = SNP major \x00 = individual major
           if mode != '\x01':
               raise Exception('only SNP-major is implemented')
-          startbit = np.ceil(0.25*N)*start+3
+          startbit = int(np.ceil(0.25*N))*start+3
           f.seek(startbit)
      
           for blockStart in np.arange(0,nSNPs,blocksize):
               blockEnd = min(S,blockStart+blocksize)
               Sblock = min(nSNPs-blockStart,blocksize)
               nbyte = int(np.ceil(0.25*N)*Sblock)
-              bytes = np.array(bytearray(f.read(nbyte))).reshape((np.ceil(0.25*N),Sblock),order='F')
+              bytes = np.array(bytearray(f.read(nbyte))).reshape((int(np.ceil(0.25*N)),Sblock),order='F')
             
               SNPs[3::4,blockStart:blockEnd][bytes>=64]=np.nan
               SNPs[3::4,blockStart:blockEnd][bytes>=128]=1

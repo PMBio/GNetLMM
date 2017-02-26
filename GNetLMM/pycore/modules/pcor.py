@@ -136,11 +136,9 @@ def corrParallel(X,Y=None,df=None):
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore")
         tstat = corr / SP.sqrt(1.0 - corr ** 2)  # calculate t statistic
-
-        
-  
-    tstat = math.sqrt(df) * tstat
-    pv = 2 * t.cdf(-abs(tstat), df, loc=0, scale=1)  # calculate p value
+        tstat = math.sqrt(df) * tstat
+        pv = 2 * t.cdf(-abs(tstat), df, loc=0, scale=1)  # calculate p value
+		
     return corr,pv
 
 
